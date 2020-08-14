@@ -15,6 +15,9 @@ function parse(text: string) {
   return output && output.script && output.script.content || 'export default {}';
 }
 
+let clssf: typeof ts_module.createLanguageServiceSourceFile;
+let ulssf: typeof ts_module.updateLanguageServiceSourceFile;
+
 function init({ typescript: ts } : {typescript: typeof ts_module}) {
   return { create, getExternalFiles };
 
@@ -66,8 +69,10 @@ function init({ typescript: ts } : {typescript: typeof ts_module}) {
   }
 
   function changeSourceFiles(info: ts.server.PluginCreateInfo) {
-    const clssf = ts.createLanguageServiceSourceFile;
-    const ulssf = ts.updateLanguageServiceSourceFile;
+    if (!clssf) { // first time loading plugin
+      clssf = ts.createLanguageServiceSourceFile;
+      ulssf = ts.updateLanguageServiceSourceFile;
+    }
     function createLanguageServiceSourceFile(fileName: string, scriptSnapshot: ts.IScriptSnapshot, scriptTarget: ts.ScriptTarget, version: string, setNodeParents: boolean, scriptKind?: ts.ScriptKind, cheat?: string): ts.SourceFile {
       if (interested(fileName)) {
         const wrapped = scriptSnapshot;
