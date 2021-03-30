@@ -135,7 +135,7 @@ function init({ typescript: ts }: { typescript: typeof ts_module }) {
       sourceFile: ts.SourceFile,
       scriptSnapshot: ts.IScriptSnapshot,
       version: string,
-      textChangeRange: ts.TextChangeRange,
+      textChangeRange: ts.TextChangeRange | undefined,
       aggressiveChecks?: boolean,
       cheat?: string
     ): ts.SourceFile {
