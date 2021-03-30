@@ -3,7 +3,9 @@ import { parseComponent } from "vue-template-compiler";
 import path = require("path");
 
 function isVue(filename: string): boolean {
-  return path.extname(filename) === ".vue";
+  const extension = path.extname(filename);
+  const vueLikeExtensions = [".vue", ".wpy"];
+  return vueLikeExtensions.indexOf(extension) > -1;
 }
 
 function isVueProject(path: string) {
@@ -12,6 +14,7 @@ function isVueProject(path: string) {
 
 function parse(text: string) {
   const output = parseComponent(text, { pad: "space" });
+  console.log(output);
   return (
     (output && output.script && output.script.content) || "export default {}"
   );
