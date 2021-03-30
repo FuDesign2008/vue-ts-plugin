@@ -12,12 +12,19 @@ function isVueProject(path: string) {
   return path.endsWith(".vue.ts") && !path.includes("node_modules");
 }
 
-function parse(text: string) {
+function parse(text: string): string {
   const output = parseComponent(text, { pad: "space" });
-  console.log(output);
-  return (
-    (output && output.script && output.script.content) || "export default {}"
-  );
+  const defaultScript = "export default {}";
+  if (!output || !output.script) {
+    return defaultScript;
+  }
+  const { script } = output;
+  const lang =
+    script && script.attrs && script.attrs["lang"]
+      ? script.attrs["lang"]
+      : "javascript";
+  const isTypescript = lang.toLowerCase() === "ts";
+  return isTypescript ? script.content : defaultScript;
 }
 
 let clssf: typeof ts_module.createLanguageServiceSourceFile;
@@ -205,6 +212,8 @@ function init({ typescript: ts }: { typescript: typeof ts_module }) {
       statements.unshift(vueImport);
       const obj = (exportDefaultObject as ts.ExportAssignment)
         .expression as ts.ObjectLiteralExpression;
+
+      // @ts-ignore
       (exportDefaultObject as ts.ExportAssignment).expression = ts.setTextRange(
         ts.createNew(
           ts.setTextRange(ts.createIdentifier("Vue"), {
